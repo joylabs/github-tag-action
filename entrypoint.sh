@@ -4,7 +4,8 @@ set -eo pipefail
 
 # custom config
 build_number=${BUILD_NUMBER:-true}
-build_number_bump=${GITHUB_RUN_ID:-}
+build_number_bump=${GITHUB_RUN_ID:-0}
+prerelease_number=${PRERELEASE_NUMBER:-false}
 
 # config
 default_semvar_bump=${DEFAULT_BUMP:-minor}
@@ -64,6 +65,7 @@ setOutput() {
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 pre_release="$prerelease"
+
 IFS=',' read -ra branch <<< "$release_branches"
 for b in "${branch[@]}"; do
     # check if ${current_branch} is in ${release_branches} | exact branch match
@@ -71,6 +73,7 @@ for b in "${branch[@]}"; do
     then
         pre_release="false"
     fi
+
     # verify non specific branch names like  .* release/* if wildcard filter then =~
     if [ "$b" != "${b//[\[\]|.? +*]/}" ] && [[ "$current_branch" =~ $b ]]
     then
@@ -81,9 +84,6 @@ echo "pre_release = $pre_release"
 
 # fetch tags
 git fetch --tags
-
-tagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+$"
-preTagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(-$suffix\.[0-9]+)$"
 
 # get the git refs
 git_refs=
@@ -98,11 +98,22 @@ case "$tag_context" in
         exit 1;;
 esac
 
+echo $git_refs
+setOutput "git_refs" "$git_refs"
+
+tagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?$"
+preTagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(-$suffix(\.[0-9]+)?)(\+([0-9]+))?$"
+
 # get the latest tag that looks like a semver (with or without v)
 matching_tag_refs=$( (grep -E "$tagFmt" <<< "$git_refs") || true)
 matching_pre_tag_refs=$( (grep -E "$preTagFmt" <<< "$git_refs") || true)
 tag=$(head -n 1 <<< "$matching_tag_refs")
 pre_tag=$(head -n 1 <<< "$matching_pre_tag_refs")
+
+echo "matching_tag_refs> $matching_tag_refs"
+echo "matching_pre_tag_refs> $matching_pre_tag_refs"
+echo "tag> $tag"
+echo "pre_tag> $pre_tag"
 
 # if there are none, start tags at INITIAL_VERSION
 if [ -z "$tag" ]
@@ -183,11 +194,6 @@ case "$log" in
         ;;
 esac
 
-if $build_number
-then
-    new=$new'+'$build_number_bump
-fi
-
 if $pre_release
 then
     # get current commit hash for tag
@@ -200,25 +206,40 @@ then
         setOutput "tag" "$pre_tag"
         exit 0
     fi
-    # already a pre-release available, bump it
-    if [[ "$pre_tag" =~ $new ]] && [[ "$pre_tag" =~ $suffix ]]
+
+    # do not want prerelease tag versions   
+    if [[ !$prerelease_number ]]
     then
         if $with_v
         then
-            new=v$(semver -i prerelease "${pre_tag}" --preid "${suffix}")
+            new="v$new-$suffix"
         else
-            new=$(semver -i prerelease "${pre_tag}" --preid "${suffix}")
-        fi
-        echo -e "Bumping ${suffix} pre-tag ${pre_tag}. New pre-tag ${new}"
-    else
-        if $with_v
-        then
-            new="v$new-$suffix.0"
-        else
-            new="$new-$suffix.0"
+            new="$new-$suffix"
         fi
         echo -e "Setting ${suffix} pre-tag ${pre_tag} - With pre-tag ${new}"
+    else
+        # already a pre-release available, bump it
+        if [[ "$pre_tag" =~ $new ]] && [[ "$pre_tag" =~ $suffix ]]
+        then
+            if $with_v
+            then
+                new=v$(semver -i prerelease "${pre_tag}" --preid "${suffix}")
+            else
+                new=$(semver -i prerelease "${pre_tag}" --preid "${suffix}")
+            fi
+            echo -e "Bumping ${suffix} pre-tag ${pre_tag}. New pre-tag ${new}"
+        else
+            if $with_v
+            then
+                new="v$new-$suffix.0"
+            else
+                new="$new-$suffix.0"
+            fi
+            echo -e "Setting ${suffix} pre-tag ${pre_tag} - With pre-tag ${new}"
+        fi
     fi
+
+    
     part="pre-$part"
 else
     if $with_v
@@ -226,6 +247,13 @@ else
         new="v$new"
     fi
     echo -e "Bumping tag ${tag} - New tag ${new}"
+fi
+
+# appending build bumber in metadata if needed
+if $build_number
+then
+    new=$new'+'$build_number_bump
+    echo -e "Build number appended to version $new"
 fi
 
 # as defined in readme if CUSTOM_TAG is used any semver calculations are irrelevant.
