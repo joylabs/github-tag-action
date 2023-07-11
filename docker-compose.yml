@@ -15,17 +15,17 @@ services:
       GIT_API_TAGGING: false
       GITHUB_WORKSPACE: /repo
       GITHUB_OUTPUT: /github_output_log
-      GITHUB_RUN_ID: 113 #should be delivered by github
 
      #develop config
-      # RELEASE_BRANCHES: master
-      # DEFAULT_BRANCH: master
-      # WITH_V: true
-      # DEFAULT_BUMP: none
-      # BUILD_NUMBER: true
-      # TAG_CONTEXT: branch
-      # PRERELEASE: true
-      # PRERELEASE_SUFFIX: dev
+      RELEASE_BRANCHES: master
+      DEFAULT_BRANCH: master
+      WITH_V: true
+      DEFAULT_BUMP: none
+      BUILD_NUMBER: true
+      INITIAL_BUILD_NUMDER: 0
+      TAG_CONTEXT: branch
+      PRERELEASE: true
+      PRERELEASE_SUFFIX: dev
 
     #release config
       # RELEASE_BRANCHES: master
@@ -33,6 +33,7 @@ services:
       # WITH_V: true
       # DEFAULT_BUMP: none
       # BUILD_NUMBER: true
+      # INITIAL_BUILD_NUMDER: 0
       # TAG_CONTEXT: repo
       # PRERELEASE: true
       # PRERELEASE_SUFFIX: rc
@@ -43,15 +44,17 @@ services:
       # WITH_V: true
       # DEFAULT_BUMP: none
       # BUILD_NUMBER: true
+      # INITIAL_BUILD_NUMDER: 0
       # TAG_CONTEXT: repo
       # PRERELEASE: true
       # PRERELEASE_SUFFIX: hotfix
 
-    #master config
-      RELEASE_BRANCHES: master
-      DEFAULT_BRANCH: master
-      WITH_V: true
-      DEFAULT_BUMP: none
-      BUILD_NUMBER: true
-      TAG_CONTEXT: branch
+    # #master config
+      # RELEASE_BRANCHES: master
+      # DEFAULT_BRANCH: master
+      # WITH_V: true
+      # DEFAULT_BUMP: none
+      # BUILD_NUMBER: true
+      # INITIAL_BUILD_NUMDER: 0
+      # TAG_CONTEXT: branch
       

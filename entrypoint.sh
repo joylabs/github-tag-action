@@ -4,7 +4,7 @@ set -eo pipefail
 
 # custom config
 build_number=${BUILD_NUMBER:-true}
-build_number_bump=${GITHUB_RUN_ID:-0}
+initial_build_number=${INITIAL_BUILD_NUMDER:-0}
 prerelease_number=${PRERELEASE_NUMBER:-false}
 
 # config
@@ -103,12 +103,33 @@ setOutput "git_refs" "$git_refs"
 
 tagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?$"
 preTagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(-$suffix(\.[0-9]+)?)(\+([0-9]+))?$"
+buildNumFmt=".*\+([0-9]+)$"
 
 # get the latest tag that looks like a semver (with or without v)
 matching_tag_refs=$( (grep -E "$tagFmt" <<< "$git_refs") || true)
 matching_pre_tag_refs=$( (grep -E "$preTagFmt" <<< "$git_refs") || true)
+
 tag=$(head -n 1 <<< "$matching_tag_refs")
 pre_tag=$(head -n 1 <<< "$matching_pre_tag_refs")
+
+if $build_number
+then
+    if $pre_release
+    then
+        if [[ $pre_tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
+    else
+        if [[ $tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
+    fi
+
+    if [[ -z current_build_number ]]
+    then
+        next_build_number=$initial_build_number
+    else
+        next_build_number=$((current_build_number + 1))
+    fi
+fi
+
+echo $current_build_number
 
 echo "matching_tag_refs> $matching_tag_refs"
 echo "matching_pre_tag_refs> $matching_pre_tag_refs"
@@ -252,7 +273,7 @@ fi
 # appending build bumber in metadata if needed
 if $build_number
 then
-    new=$new'+'$build_number_bump
+    new=$new'+'$next_build_number
     echo -e "Build number appended to version $new"
 fi
 
