@@ -2,6 +2,10 @@
 
 set -eo pipefail
 
+# custom config
+build_number=${BUILD_NUMBER:-true}
+build_number_bump=${GITHUB_RUN_ID:-}
+
 # config
 default_semvar_bump=${DEFAULT_BUMP:-minor}
 default_branch=${DEFAULT_BRANCH:-$GITHUB_BASE_REF} # get the default branch from github runner env vars
@@ -45,6 +49,7 @@ echo -e "\tMINOR_STRING_TOKEN: ${minor_string_token}"
 echo -e "\tPATCH_STRING_TOKEN: ${patch_string_token}"
 echo -e "\tNONE_STRING_TOKEN: ${none_string_token}"
 echo -e "\tBRANCH_HISTORY: ${branch_history}"
+echo -e "\tBUILD_NUMBER: ${BUILD_NUMBER}"
 
 # verbose, show everything
 if $verbose
@@ -169,18 +174,19 @@ case "$log" in
     * )
         if [ "$default_semvar_bump" == "none" ]
         then
-            echo "Default bump was set to none. Skipping..."
-            setOutput "old_tag" "$tag"
-            setOutput "new_tag" "$tag"
-            setOutput "tag" "$tag"
-            setOutput "part" "$default_semvar_bump"
-            exit 0
+            echo "Default bump was set to none."
+            new=$(semver "$tag")
         else
             new=$(semver -i "${default_semvar_bump}" "$tag")
             part=$default_semvar_bump
         fi
         ;;
 esac
+
+if $build_number
+then
+    new=$new'+'$build_number_bump
+fi
 
 if $pre_release
 then
