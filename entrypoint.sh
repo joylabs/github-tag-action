@@ -5,7 +5,7 @@ set -eo pipefail
 # custom config
 build_number=${BUILD_NUMBER:-true}
 initial_build_number=${INITIAL_BUILD_NUMDER:-0}
-prerelease_number=${PRERELEASE_NUMBER:-false}
+prerelease_version=${PRERELEASE_VERSION:-true}
 
 # config
 default_semvar_bump=${DEFAULT_BUMP:-minor}
@@ -113,7 +113,7 @@ tag=$(head -n 1 <<< "$matching_tag_refs")
 pre_tag=$(head -n 1 <<< "$matching_pre_tag_refs")
 latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 
-if $build_number
+if [ $build_number = true ]
 then
     if [[ $latest_tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
 
@@ -224,7 +224,7 @@ then
     fi
 
     # do not want prerelease tag versions   
-    if [[ !$prerelease_number ]]
+    if [ $prerelease_version = false ]
     then
         if $with_v
         then
@@ -266,7 +266,7 @@ else
 fi
 
 # appending build bumber in metadata if needed
-if $build_number
+if [ $build_number = true ]
 then
     new=$new'+'$next_build_number
     echo -e "Build number appended to version $new"
