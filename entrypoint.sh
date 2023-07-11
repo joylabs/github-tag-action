@@ -4,7 +4,7 @@ set -eo pipefail
 
 # custom config
 build_number=${BUILD_NUMBER:-true}
-initial_build_number=${INITIAL_BUILD_NUMDER:-0}
+initial_build_number=${INITIAL_BUILD_NUMBER:-0}
 prerelease_version=${PRERELEASE_VERSION:-true}
 
 # config
