@@ -111,15 +111,11 @@ matching_pre_tag_refs=$( (grep -E "$preTagFmt" <<< "$git_refs") || true)
 
 tag=$(head -n 1 <<< "$matching_tag_refs")
 pre_tag=$(head -n 1 <<< "$matching_pre_tag_refs")
+latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 
 if $build_number
 then
-    if $pre_release
-    then
-        if [[ $pre_tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
-    else
-        if [[ $tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
-    fi
+    if [[ $latest_tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
 
     if [[ -z current_build_number ]]
     then
@@ -129,12 +125,11 @@ then
     fi
 fi
 
-echo $current_build_number
-
 echo "matching_tag_refs> $matching_tag_refs"
 echo "matching_pre_tag_refs> $matching_pre_tag_refs"
 echo "tag> $tag"
 echo "pre_tag> $pre_tag"
+echo "latest_tag> $latest_tag"
 
 # if there are none, start tags at INITIAL_VERSION
 if [ -z "$tag" ]
