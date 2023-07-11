@@ -10,21 +10,22 @@ services:
        - /Users/givip/JoyLabs/git_tests:/repo
     environment:
      # GITHUB_TOKEN: ${{ secrets.JEREMY_REPO_TAG_SCOPE_ACCESS_TOKEN }}
+      VERBOSE: false
       DRY_RUN: true
       GIT_API_TAGGING: false
       GITHUB_WORKSPACE: /repo
       GITHUB_OUTPUT: /github_output_log
-      GITHUB_RUN_ID: 113
+      GITHUB_RUN_ID: 113 #should be delivered by github
 
      #develop config
-      RELEASE_BRANCHES: master
-      DEFAULT_BRANCH: master
-      WITH_V: true
-      DEFAULT_BUMP: none
-      BUILD_NUMBER: true
-      TAG_CONTEXT: repo
-      PRERELEASE: true
-      PRERELEASE_SUFFIX: dev
+      # RELEASE_BRANCHES: master
+      # DEFAULT_BRANCH: master
+      # WITH_V: true
+      # DEFAULT_BUMP: none
+      # BUILD_NUMBER: true
+      # TAG_CONTEXT: branch
+      # PRERELEASE: true
+      # PRERELEASE_SUFFIX: dev
 
     #release config
       # RELEASE_BRANCHES: master
@@ -35,4 +36,22 @@ services:
       # TAG_CONTEXT: repo
       # PRERELEASE: true
       # PRERELEASE_SUFFIX: rc
+
+    #hotfix config
+      # RELEASE_BRANCHES: master
+      # DEFAULT_BRANCH: master
+      # WITH_V: true
+      # DEFAULT_BUMP: none
+      # BUILD_NUMBER: true
+      # TAG_CONTEXT: repo
+      # PRERELEASE: true
+      # PRERELEASE_SUFFIX: hotfix
+
+    #master config
+      RELEASE_BRANCHES: master
+      DEFAULT_BRANCH: master
+      WITH_V: true
+      DEFAULT_BUMP: none
+      BUILD_NUMBER: true
+      TAG_CONTEXT: branch
       
