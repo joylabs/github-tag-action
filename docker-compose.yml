@@ -51,11 +51,11 @@ services:
       # PRERELEASE_SUFFIX: hotfix
       # PRERELEASE_VERSION: false
 
-    # #master config
+    #master config
       RELEASE_BRANCHES: master
       DEFAULT_BRANCH: master
       WITH_V: true
       DEFAULT_BUMP: none
       BUILD_NUMBER: true
       INITIAL_BUILD_NUMDER: 0
-      TAG_CONTEXT: branch
+      TAG_CONTEXT: repo

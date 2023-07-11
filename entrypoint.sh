@@ -101,16 +101,20 @@ esac
 echo $git_refs
 setOutput "git_refs" "$git_refs"
 
-tagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?$"
-preTagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(-$suffix(\.[0-9]+)?)(\+([0-9]+))?$"
-buildNumFmt=".*\+([0-9]+)$"
-
 # get the latest tag that looks like a semver (with or without v)
+tagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?$"
 matching_tag_refs=$( (grep -E "$tagFmt" <<< "$git_refs") || true)
-matching_pre_tag_refs=$( (grep -E "$preTagFmt" <<< "$git_refs") || true)
-
 tag=$(head -n 1 <<< "$matching_tag_refs")
-pre_tag=$(head -n 1 <<< "$matching_pre_tag_refs")
+
+if $pre_release
+then
+    preTagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(-$suffix(\.[0-9]+)?)(\+([0-9]+))?$"
+    matching_pre_tag_refs=$( (grep -E "$preTagFmt" <<< "$git_refs") || true)
+    pre_tag=$(head -n 1 <<< "$matching_pre_tag_refs")
+    echo $pre_tag
+fi
+
+buildNumFmt=".*\+([0-9]+)$"
 latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 
 if [ $build_number = true ]
