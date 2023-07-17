@@ -63,6 +63,7 @@ setOutput() {
 }
 
 current_branch=$(git rev-parse --abbrev-ref HEAD)
+echo "current_branch> $current_branch"
 
 pre_release="$prerelease"
 
@@ -110,14 +111,23 @@ then
     preTagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(-$suffix(\.[0-9]+)?)(\+([0-9]+))?$"
     matching_pre_tag_refs=$( (grep -E "$preTagFmt" <<< "$git_refs") || true)
     pre_tag=$(head -n 1 <<< "$matching_pre_tag_refs")
+
+    echo "matching_pre_tag_refs> $matching_pre_tag_refs"
+    echo "pre_tag> $pre_tag"
+else
+    echo "matching_tag_refs> $matching_tag_refs"
+    echo "tag> $tag"
 fi
 
 buildNumFmt=".*\+([0-9]+)$"
 latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+echo "latest_tag> $latest_tag"
 
 if [ $build_number = true ]
 then
     if [[ $latest_tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
+
+    echo "current_build_number> $current_build_number"
 
     if [[ -z current_build_number ]]
     then
@@ -125,13 +135,9 @@ then
     else
         next_build_number=$((current_build_number + 1))
     fi
-fi
 
-echo "matching_tag_refs> $matching_tag_refs"
-echo "matching_pre_tag_refs> $matching_pre_tag_refs"
-echo "tag> $tag"
-echo "pre_tag> $pre_tag"
-echo "latest_tag> $latest_tag"
+    echo "next_build_number> $next_build_number"
+fi
 
 # if there are none, start tags at INITIAL_VERSION
 if [ -z "$tag" ]
