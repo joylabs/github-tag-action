@@ -44,6 +44,7 @@ echo -e "\tINITIAL_VERSION: ${initial_version}"
 echo -e "\tTAG_CONTEXT: ${tag_context}"
 echo -e "\tPRERELEASE: ${prerelease}"
 echo -e "\tPRERELEASE_SUFFIX: ${suffix}"
+echo -r "\tPRERELEASE_VERSION: ${prerelease_version}"
 echo -e "\tVERBOSE: ${verbose}"
 echo -e "\tMAJOR_STRING_TOKEN: ${major_string_token}"
 echo -e "\tMINOR_STRING_TOKEN: ${minor_string_token}"
@@ -51,6 +52,7 @@ echo -e "\tPATCH_STRING_TOKEN: ${patch_string_token}"
 echo -e "\tNONE_STRING_TOKEN: ${none_string_token}"
 echo -e "\tBRANCH_HISTORY: ${branch_history}"
 echo -e "\tBUILD_NUMBER: ${BUILD_NUMBER}"
+echo -e "\tINITIAL_BUILD_NUMBER: ${initial_build_number}"
 
 # verbose, show everything
 if $verbose
@@ -98,8 +100,6 @@ case "$tag_context" in
     * ) echo "Unrecognised context"
         exit 1;;
 esac
-
-echo "git_refs> $git_refs"
 
 # get the latest tag that looks like a semver (with or without v)
 tagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?$"
