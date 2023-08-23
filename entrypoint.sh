@@ -123,7 +123,7 @@ buildNumFmt=".*\+([0-9]+)$"
 latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 echo "latest_tag> $latest_tag"
 
-if [ $build_number = true ]
+if [ "$build_number" = true ]
 then
     if [[ $latest_tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
 
@@ -193,26 +193,32 @@ declare -A history_type=(
     ["compare"]="$(git log "${tag_commit}".."${commit}" --format=%B)" \
 )
 log=${history_type[${branch_history}]}
-printf "History:\n---\n%s\n---\n" "$log"
+
+if $pre_release
+then
+  target_tag=$pre_tag
+else
+  target_tag=$tag
+fi
 
 case "$log" in
-    *$major_string_token* ) new=$(semver -i major "$tag"); part="major";;
-    *$minor_string_token* ) new=$(semver -i minor "$tag"); part="minor";;
-    *$patch_string_token* ) new=$(semver -i patch "$tag"); part="patch";;
+    *$major_string_token* ) new=$(semver -i major "$target_tag"); part="major";;
+    *$minor_string_token* ) new=$(semver -i minor "$target_tag"); part="minor";;
+    *$patch_string_token* ) new=$(semver -i patch "$target_tag"); part="patch";;
     *$none_string_token* )
         echo "Default bump was set to none. Skipping..."
-        setOutput "old_tag" "$tag"
-        setOutput "new_tag" "$tag"
-        setOutput "tag" "$tag"
+        setOutput "old_tag" "$target_tag"
+        setOutput "new_tag" "$target_tag"
+        setOutput "tag" "$target_tag"
         setOutput "part" "$default_semvar_bump"
         exit 0;;
     * )
         if [ "$default_semvar_bump" == "none" ]
         then
             echo "Default bump was set to none."
-            new=$(semver "$tag")
+            new=$(semver "$target_tag")
         else
-            new=$(semver -i "${default_semvar_bump}" "$tag")
+            new=$(semver -i "${default_semvar_bump}" "$target_tag")
             part=$default_semvar_bump
         fi
         ;;
@@ -232,7 +238,7 @@ then
     fi
 
     # do not want prerelease tag versions   
-    if [ $prerelease_version = false ]
+    if [ "$prerelease_version" = false ]
     then
         if $with_v
         then
@@ -259,7 +265,7 @@ then
             else
                 new="$new-$suffix.0"
             fi
-            echo -e "Setting ${suffix} pre-tag ${pre_tag} - With pre-tag ${new}"
+            echo -e "Bumping ${suffix} pre-tag ${pre_tag} - With pre-tag ${new}"
         fi
     fi
 
