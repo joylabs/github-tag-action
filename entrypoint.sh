@@ -50,7 +50,7 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 echo "current_branch> $current_branch"
 
 # fetch tags
-################!!!!!!!!!!!!!!!!!!!!!!!!!! git fetch --tags
+git fetch --tags
 
 res_count=30
 
