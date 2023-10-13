@@ -16,10 +16,9 @@ services:
       GITHUB_OUTPUT: /github_output_log
 
       DEFAULT_BRANCH: develop
-      DEFAULT_BUMP: none
       BUILD_NUMBER: true
-      INITIAL_BUILD_NUMDER: 0
+      INITIAL_BUILD_NUMBER: 0
       TAG_CONTEXT: repo
       PRERELEASE: true
-      PRERELEASE_SUFFIX: hotfix
+      PRERELEASE_SUFFIX: dev
       PRERELEASE_VERSION: false
