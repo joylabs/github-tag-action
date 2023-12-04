@@ -77,12 +77,19 @@ echo "matching_tag_refs> $matching_tag_refs"
 echo "tag> $tag"
 
 buildNumFmt=".*\+([0-9]+)$"
-latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-echo "latest_tag> $latest_tag"
+latest_tag=$(git describe --tags `git rev-list --tags --max-count=10`)
+echo "Latest 10 tags: $latest_tag"
 
 if $build_number
 then
-    if [[ $latest_tag =~ $buildNumFmt ]]; then current_build_number=${BASH_REMATCH[1]}; fi
+    current_build_number="1"
+    while IFS= read -r line; do
+        if [[ $line =~ $buildNumFmt ]] && [[ ${BASH_REMATCH[1]} > $current_build_number ]]
+            then
+                echo "Max build number among latest 10 tags is ${BASH_REMATCH[1]}"
+                current_build_number=${BASH_REMATCH[1]}
+        fi
+    done <<< "$latest_tag"
 
     echo "current_build_number> $current_build_number"
 
